@@ -3,7 +3,6 @@ import { useState } from "react";
 import "../styles/tasklist.scss";
 
 import { FiTrash, FiCheckSquare } from "react-icons/fi";
-import toast, { ToastBar, Toaster } from "react-hot-toast";
 
 interface Task {
   id: number;
@@ -15,23 +14,16 @@ export function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState("");
 
-  const notify = () =>
-    toast.error("Nome da tarefa não pode ser em branco", { duration: 3000 });
-
   function handleCreateNewTask() {
     // Crie uma nova task com um id random, não permita criar caso o título seja vazio.
-    if (!newTaskTitle.trim() || newTaskTitle.length === 0) {
-      notify();
-    } else {
-      setTasks((Task) => [
-        ...Task,
-        {
-          id: Math.random(),
-          title: newTaskTitle,
-          isComplete: false,
-        },
-      ]);
-    }
+    setTasks((Task) => [
+      ...Task,
+      {
+        id: Math.random(),
+        title: newTaskTitle,
+        isComplete: false,
+      },
+    ]);
 
     setNewTaskTitle("");
     document.getElementsByTagName("input")[0].focus();
@@ -55,27 +47,6 @@ export function TaskList() {
     <section className="task-list container">
       <header>
         <h2>Minhas tasks</h2>
-
-        <Toaster>
-          {(t) => (
-            <ToastBar toast={t}>
-              {({ icon, message }) => (
-                <>
-                  {icon}
-                  {message}
-                  {t.type !== "loading" && (
-                    <button
-                      style={{ border: "none", padding: 4, background: "none" }}
-                      onClick={() => toast.dismiss(t.id)}
-                    >
-                      X
-                    </button>
-                  )}
-                </>
-              )}
-            </ToastBar>
-          )}
-        </Toaster>
 
         <div className="input-group">
           <input
