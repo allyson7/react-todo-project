@@ -57,6 +57,12 @@ section.task-list {
         &:hover {
           filter: brightness(0.95);
         }
+
+        &:disabled {
+          background: var(--text-light);
+          filter: opacity(0.5);
+          cursor: not-allowed;
+        }
       }
     }
   }

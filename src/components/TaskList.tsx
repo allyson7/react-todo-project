@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState } from "react";
 
-import '../styles/tasklist.scss'
+import "../styles/tasklist.scss";
 
-import { FiTrash, FiCheckSquare } from 'react-icons/fi'
+import { FiTrash, FiCheckSquare } from "react-icons/fi";
+import toast, { ToastBar, Toaster } from "react-hot-toast";
 
 interface Task {
   id: number;
@@ -12,18 +13,42 @@ interface Task {
 
 export function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+
+  const notify = () =>
+    toast.error("Nome da tarefa não pode ser em branco", { duration: 3000 });
 
   function handleCreateNewTask() {
     // Crie uma nova task com um id random, não permita criar caso o título seja vazio.
+    if (!newTaskTitle.trim() || newTaskTitle.length === 0) {
+      notify();
+    } else {
+      setTasks((Task) => [
+        ...Task,
+        {
+          id: Math.random(),
+          title: newTaskTitle,
+          isComplete: false,
+        },
+      ]);
+    }
+
+    setNewTaskTitle("");
+    document.getElementsByTagName("input")[0].focus();
   }
 
   function handleToggleTaskCompletion(id: number) {
     // Altere entre `true` ou `false` o campo `isComplete` de uma task com dado ID
+    setTasks((Task) =>
+      Task.map((Task) =>
+        Task.id == id ? { ...Task, isComplete: !Task.isComplete } : Task
+      )
+    );
   }
 
   function handleRemoveTask(id: number) {
     // Remova uma task da listagem pelo ID
+    setTasks((Task) => Task.filter((Task) => Task.id !== id));
   }
 
   return (
@@ -31,26 +56,55 @@ export function TaskList() {
       <header>
         <h2>Minhas tasks</h2>
 
+        <Toaster>
+          {(t) => (
+            <ToastBar toast={t}>
+              {({ icon, message }) => (
+                <>
+                  {icon}
+                  {message}
+                  {t.type !== "loading" && (
+                    <button
+                      style={{ border: "none", padding: 4, background: "none" }}
+                      onClick={() => toast.dismiss(t.id)}
+                    >
+                      X
+                    </button>
+                  )}
+                </>
+              )}
+            </ToastBar>
+          )}
+        </Toaster>
+
         <div className="input-group">
-          <input 
-            type="text" 
-            placeholder="Adicionar novo todo" 
+          <input
+            type="text"
+            placeholder="Adicionar novo todo"
             onChange={(e) => setNewTaskTitle(e.target.value)}
             value={newTaskTitle}
           />
-          <button type="submit" data-testid="add-task-button" onClick={handleCreateNewTask}>
-            <FiCheckSquare size={16} color="#fff"/>
+          <button
+            type="submit"
+            data-testid="add-task-button"
+            onClick={handleCreateNewTask}
+            disabled={!newTaskTitle.trim() || newTaskTitle.length === 0}
+          >
+            <FiCheckSquare size={16} color="#fff" />
           </button>
         </div>
       </header>
 
       <main>
         <ul>
-          {tasks.map(task => (
+          {tasks.map((task) => (
             <li key={task.id}>
-              <div className={task.isComplete ? 'completed' : ''} data-testid="task" >
+              <div
+                className={task.isComplete ? "completed" : ""}
+                data-testid="task"
+              >
                 <label className="checkbox-container">
-                  <input 
+                  <input
                     type="checkbox"
                     readOnly
                     checked={task.isComplete}
@@ -61,14 +115,17 @@ export function TaskList() {
                 <p>{task.title}</p>
               </div>
 
-              <button type="button" data-testid="remove-task-button" onClick={() => handleRemoveTask(task.id)}>
-                <FiTrash size={16}/>
+              <button
+                type="button"
+                data-testid="remove-task-button"
+                onClick={() => handleRemoveTask(task.id)}
+              >
+                <FiTrash size={16} />
               </button>
             </li>
           ))}
-          
         </ul>
       </main>
     </section>
-  )
+  );
 }
